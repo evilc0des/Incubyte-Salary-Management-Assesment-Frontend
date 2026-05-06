@@ -1,8 +1,20 @@
-import { HomePage } from "../components/home-page";
+import { DashboardShell } from "../components/dashboard-shell";
+import { OverviewPage } from "../components/overview-page";
+import { getInsightsOverview } from "../lib/dashboard-api";
 
-export default function Home() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+export default async function Home() {
+  let overview = null;
 
-  return <HomePage apiUrl={apiUrl} />;
+  try {
+    overview = await getInsightsOverview();
+  } catch {
+    overview = null;
+  }
+
+  return (
+    <DashboardShell currentPath="/">
+      <OverviewPage overview={overview} />
+    </DashboardShell>
+  );
 }
 
