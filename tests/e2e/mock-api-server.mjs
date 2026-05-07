@@ -1,5 +1,8 @@
 import { createServer } from "node:http";
 
+const host = "127.0.0.1";
+const port = Number(process.env.E2E_MOCK_API_PORT ?? "8010");
+
 const overview = {
   filters: {
     country: null,
@@ -47,7 +50,7 @@ function sendJson(response, status, payload) {
 }
 
 createServer((request, response) => {
-  const url = new URL(request.url ?? "/", "http://127.0.0.1:8000");
+  const url = new URL(request.url ?? "/", `http://${host}:${port}`);
 
   if (url.pathname === "/healthz") {
     sendJson(response, 200, { ok: true });
@@ -72,4 +75,4 @@ createServer((request, response) => {
   sendJson(response, 404, {
     detail: "Not found"
   });
-}).listen(8000, "127.0.0.1");
+}).listen(port, host);

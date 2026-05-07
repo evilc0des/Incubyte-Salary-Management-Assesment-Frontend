@@ -1,6 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn()
+  }),
+  useSearchParams: () => new URLSearchParams()
+}));
+
 import EmployeesPage from "../../app/employees/page";
 
 const originalApiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -87,6 +94,6 @@ describe("Employees page", () => {
     render(await EmployeesPage());
 
     expect(screen.getByRole("heading", { name: "Employees" })).toBeInTheDocument();
-    expect(screen.getByText("No employees found yet.")).toBeInTheDocument();
+    expect(screen.getByText("No employees found")).toBeInTheDocument();
   });
 });

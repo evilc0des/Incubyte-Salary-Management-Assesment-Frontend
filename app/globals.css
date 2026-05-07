@@ -304,3 +304,228 @@ a {
   }
 }
 
+/* Employees Table Styles */
+
+.employees-table-container {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.employees-search-form {
+  display: flex;
+  gap: 0.75rem;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.employees-search-form label {
+  color: var(--foreground);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.employees-search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--panel);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+
+.employees-search-input:hover,
+.employees-search-input:focus-visible {
+  border-color: rgba(245, 158, 11, 0.35);
+  outline: none;
+}
+
+.employees-search-input::placeholder {
+  color: var(--muted);
+}
+
+.employees-search-button {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, var(--accent-soft), rgba(255, 255, 255, 0.04));
+  color: var(--foreground);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    transform 140ms ease;
+}
+
+.employees-search-button:hover,
+.employees-search-button:focus-visible {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(255, 255, 255, 0.06));
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.employees-pagination-info {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--background-elevated);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.employees-pagination-info p {
+  margin: 0;
+}
+
+.employees-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.employees-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.employees-table thead {
+  border-bottom: 2px solid var(--border);
+  background: var(--panel-strong);
+}
+
+.employees-table th {
+  padding: 1rem;
+  text-align: left;
+  color: var(--foreground);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.table-sort-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.table-sort-button:hover,
+.table-sort-button:focus-visible {
+  color: var(--accent);
+  outline: none;
+}
+
+.employees-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background-color 140ms ease;
+}
+
+.employees-table tbody tr:hover {
+  background: var(--panel-strong);
+}
+
+.employees-table td {
+  padding: 1rem;
+  color: var(--foreground);
+}
+
+.employees-table td a {
+  color: var(--accent);
+  font-weight: 600;
+  transition: color 140ms ease;
+}
+
+.employees-table td a:hover,
+.employees-table td a:focus-visible {
+  color: #fbbf24;
+}
+
+.employees-pagination-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-button {
+  padding: 0.6rem 1.25rem;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 0.6rem;
+  background: var(--panel);
+  color: var(--foreground);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    opacity 140ms ease;
+}
+
+.pagination-button:hover:not(:disabled),
+.pagination-button:focus-visible:not(:disabled) {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--accent-soft), rgba(255, 255, 255, 0.04));
+  outline: none;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .employees-search-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .employees-search-input {
+    min-width: auto;
+  }
+
+  .employees-pagination-controls {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .employees-table {
+    font-size: 0.85rem;
+  }
+
+  .employees-table th,
+  .employees-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .employees-pagination-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .pagination-button {
+    width: 100%;
+  }
+}
+
