@@ -68,7 +68,7 @@ describe("Employees list table", () => {
       })
     );
 
-    render(await EmployeesPage());
+    render(await EmployeesPage({ searchParams: Promise.resolve({}) }));
 
     const table = screen.getByRole("table");
     expect(table).toBeInTheDocument();
@@ -97,7 +97,7 @@ describe("Employees list table", () => {
       })
     );
 
-    render(await EmployeesPage());
+    render(await EmployeesPage({ searchParams: Promise.resolve({}) }));
 
     expect(screen.getByRole("searchbox", { name: /Search/ })).toBeInTheDocument();
     expect(screen.getByText(/Showing 2 of 2/)).toBeInTheDocument();

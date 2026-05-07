@@ -10,9 +10,7 @@ type EmployeesPageProps = {
   }>;
 };
 
-export default async function EmployeesPage({
-  searchParams
-}: EmployeesPageProps = {}) {
+export default async function EmployeesPage({ searchParams }: EmployeesPageProps) {
   const params = await (
     searchParams ?? Promise.resolve<{ search?: string; limit?: string; offset?: string }>({})
   );

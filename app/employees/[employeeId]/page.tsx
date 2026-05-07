@@ -5,9 +5,7 @@ import { DashboardApiError, getEmployee } from "../../../lib/dashboard-api";
 type EmployeeDetailPageProps = {
   params: Promise<{
     employeeId: string;
-  }> | {
-    employeeId: string;
-  };
+  }>;
 };
 
 export default async function EmployeeDetailPage({ params }: EmployeeDetailPageProps) {

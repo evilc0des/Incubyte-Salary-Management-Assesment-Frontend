@@ -65,7 +65,7 @@ describe("Employees page", () => {
       })
     );
 
-    render(await EmployeesPage());
+    render(await EmployeesPage({ searchParams: Promise.resolve({}) }));
 
     expect(screen.getByRole("heading", { name: "Employees" })).toBeInTheDocument();
     expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe("Employees page", () => {
       })
     );
 
-    render(await EmployeesPage());
+    render(await EmployeesPage({ searchParams: Promise.resolve({}) }));
 
     expect(screen.getByRole("heading", { name: "Employees" })).toBeInTheDocument();
     expect(screen.getByText("No employees found")).toBeInTheDocument();

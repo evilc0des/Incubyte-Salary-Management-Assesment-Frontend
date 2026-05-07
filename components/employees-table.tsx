@@ -119,7 +119,7 @@ export function EmployeesTable({ response, isLoading = false }: EmployeesTablePr
 
   return (
     <div className="employees-table-container">
-      <form className="employees-search-form" onSubmit={handleSearch}>
+      <form className="employees-search-form flex items-center" onSubmit={handleSearch}>
         <label htmlFor="search">Search employees:</label>
         <input
           id="search"
