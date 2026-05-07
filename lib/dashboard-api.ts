@@ -135,7 +135,7 @@ export function resolveApiBaseUrl({ serverSide, env }: ResolveApiBaseUrlOptions)
     );
   }
 
-  // Keep browser requests same-origin and let Next proxy /api/v1 to the backend.
+  // Keep browser requests same-origin and let the Next route handler proxy /api/v1.
   return "/api/v1";
 }
 
