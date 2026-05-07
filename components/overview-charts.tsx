@@ -1,12 +1,16 @@
 "use client";
 
+import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 
 import {
   type CountryInsightsListResponse,
+  type DepartmentInsightsListResponse,
   type EmployeeInsightsOverview,
+  type HiringTrendResponse,
   type JobTitleInsightsListResponse,
+  type TenureBandInsightsListResponse,
   listInsightsByCountryJobTitles
 } from "../lib/dashboard-api";
 import { formatCurrency } from "../lib/formatters";
@@ -14,6 +18,9 @@ import { formatCurrency } from "../lib/formatters";
 type OverviewChartsProps = {
   overview: EmployeeInsightsOverview;
   countryInsights: CountryInsightsListResponse | null;
+  departmentInsights: DepartmentInsightsListResponse | null;
+  tenureBandInsights: TenureBandInsightsListResponse | null;
+  hiringTrend: HiringTrendResponse | null;
   initialCountry: string | null;
   initialCountryJobTitleInsights: JobTitleInsightsListResponse | null;
 };
@@ -21,6 +28,19 @@ type OverviewChartsProps = {
 type BarChartDatum = {
   label: string;
   value: number;
+};
+
+type TrendChartDatum = {
+  label: string;
+  value: number;
+};
+
+type ExpandablePanelShellProps = {
+  panelId: string;
+  title: string;
+  expandedPanelId: string | null;
+  onToggle: (panelId: string) => void;
+  children: ReactNode;
 };
 
 function parseSalary(value: string | null) {
@@ -36,16 +56,80 @@ function formatCurrencyNumber(value: number, currency: string) {
   return formatCurrency(value.toFixed(2), currency);
 }
 
-function CountryAverageSalaryChart({
-  data,
-  currency,
+function formatCountNumber(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function formatMonthLabel(value: string) {
+  const parsed = new Date(`${value}-01T00:00:00Z`);
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    year: "2-digit",
+    timeZone: "UTC"
+  }).format(parsed);
+}
+
+function isInteractiveTarget(target: EventTarget | null) {
+  return target instanceof HTMLElement && Boolean(target.closest("a, button, input, label, option, select, textarea"));
+}
+
+function ExpandablePanelShell({
+  panelId,
   title,
-  emptyMessage
+  expandedPanelId,
+  onToggle,
+  children
+}: ExpandablePanelShellProps) {
+  const isExpanded = expandedPanelId === panelId;
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    if (isInteractiveTarget(event.target)) {
+      return;
+    }
+
+    onToggle(panelId);
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (isInteractiveTarget(event.target)) {
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onToggle(panelId);
+    }
+  };
+
+  return (
+    <article
+      aria-label={`${isExpanded ? "Collapse" : "Expand"} ${title} panel`}
+      aria-pressed={isExpanded}
+      className={`dashboard-panel overview-chart-panel${isExpanded ? " overview-chart-panel-expanded" : ""}`}
+      data-expanded={isExpanded ? "true" : "false"}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+    >
+      {children}
+    </article>
+  );
+}
+
+function HorizontalBarChartContent({
+  data,
+  emptyMessage,
+  ariaLabel,
+  formatValue
 }: {
   data: BarChartDatum[];
-  currency: string;
-  title: string;
   emptyMessage: string;
+  ariaLabel: string;
+  formatValue: (value: number) => string;
 }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
@@ -84,7 +168,7 @@ function CountryAverageSalaryChart({
     const xAxis = d3
       .axisBottom(x)
       .ticks(5)
-      .tickFormat((value) => formatCurrencyNumber(Number(value), currency));
+      .tickFormat((value) => formatValue(Number(value)));
 
     svg
       .append("g")
@@ -119,12 +203,159 @@ function CountryAverageSalaryChart({
       .attr("x", (item) => x(item.value) + 8)
       .attr("y", (item) => (y(item.label) ?? 0) + y.bandwidth() / 2 + 4)
       .attr("class", "overview-bar-label")
-      .text((item) => formatCurrencyNumber(item.value, currency));
-  }, [currency, data]);
+      .text((item) => formatValue(item.value));
+  }, [data, formatValue]);
+
+  if (data.length === 0) {
+    return <p>{emptyMessage}</p>;
+  }
 
   return (
-    <article className="dashboard-panel overview-chart-panel">
+    <svg
+      aria-label={ariaLabel}
+      className="overview-chart"
+      preserveAspectRatio="xMidYMid meet"
+      ref={svgRef}
+      role="img"
+    />
+  );
+}
+
+function HorizontalBarChartPanel({
+  panelId,
+  expandedPanelId,
+  onToggle,
+  data,
+  title,
+  copy,
+  emptyMessage,
+  formatValue
+}: {
+  panelId: string;
+  expandedPanelId: string | null;
+  onToggle: (panelId: string) => void;
+  data: BarChartDatum[];
+  title: string;
+  copy?: string;
+  emptyMessage: string;
+  formatValue: (value: number) => string;
+}) {
+  return (
+    <ExpandablePanelShell
+      expandedPanelId={expandedPanelId}
+      onToggle={onToggle}
+      panelId={panelId}
+      title={title}
+    >
       <h2>{title}</h2>
+      {copy ? <p className="overview-chart-copy">{copy}</p> : null}
+      <HorizontalBarChartContent
+        ariaLabel={title}
+        data={data}
+        emptyMessage={emptyMessage}
+        formatValue={formatValue}
+      />
+    </ExpandablePanelShell>
+  );
+}
+
+function TrendBarChartPanel({
+  panelId,
+  expandedPanelId,
+  onToggle,
+  data,
+  title,
+  copy,
+  emptyMessage
+}: {
+  panelId: string;
+  expandedPanelId: string | null;
+  onToggle: (panelId: string) => void;
+  data: TrendChartDatum[];
+  title: string;
+  copy?: string;
+  emptyMessage: string;
+}) {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
+  useEffect(() => {
+    const svgElement = svgRef.current;
+    if (!svgElement) {
+      return;
+    }
+
+    const svg = d3.select(svgElement);
+    svg.selectAll("*").remove();
+
+    const width = 760;
+    const height = 250;
+    const margin = { top: 20, right: 16, bottom: 56, left: 48 };
+
+    svg.attr("viewBox", `0 0 ${width} ${height}`);
+
+    if (data.length === 0) {
+      return;
+    }
+
+    const x = d3
+      .scaleBand<string>()
+      .domain(data.map((item) => item.label))
+      .range([margin.left, width - margin.right])
+      .padding(0.24);
+
+    const maxValue = d3.max(data, (item) => item.value) ?? 0;
+    const y = d3
+      .scaleLinear()
+      .domain([0, maxValue * 1.1 || 1])
+      .nice()
+      .range([height - margin.bottom, margin.top]);
+
+    svg
+      .append("g")
+      .attr("transform", `translate(0, ${height - margin.bottom})`)
+      .attr("class", "overview-chart-axis")
+      .call(d3.axisBottom(x))
+      .call((group) => group.selectAll("text").attr("transform", "rotate(-30)").style("text-anchor", "end"));
+
+    svg
+      .append("g")
+      .attr("transform", `translate(${margin.left},0)`)
+      .attr("class", "overview-chart-axis")
+      .call(d3.axisLeft(y).ticks(4).tickFormat((value) => formatCountNumber(Number(value))));
+
+    svg
+      .append("g")
+      .selectAll("rect")
+      .data(data)
+      .join("rect")
+      .attr("x", (item) => x(item.label) ?? 0)
+      .attr("y", (item) => y(item.value))
+      .attr("width", x.bandwidth())
+      .attr("height", (item) => height - margin.bottom - y(item.value))
+      .attr("rx", 8)
+      .attr("class", "overview-column");
+
+    svg
+      .append("g")
+      .selectAll("text")
+      .data(data)
+      .join("text")
+      .attr("x", (item) => (x(item.label) ?? 0) + x.bandwidth() / 2)
+      .attr("y", (item) => y(item.value) - 8)
+      .attr("text-anchor", "middle")
+      .attr("class", "overview-bar-label")
+      .text((item) => formatCountNumber(item.value));
+  }, [data]);
+
+  return (
+    <ExpandablePanelShell
+      expandedPanelId={expandedPanelId}
+      onToggle={onToggle}
+      panelId={panelId}
+      title={title}
+    >
+      <h2>{title}</h2>
+      {copy ? <p className="overview-chart-copy">{copy}</p> : null}
       {data.length === 0 ? (
         <p>{emptyMessage}</p>
       ) : (
@@ -136,13 +367,19 @@ function CountryAverageSalaryChart({
           role="img"
         />
       )}
-    </article>
+    </ExpandablePanelShell>
   );
 }
 
 function SalaryDistributionChart({
+  panelId,
+  expandedPanelId,
+  onToggle,
   overview
 }: {
+  panelId: string;
+  expandedPanelId: string | null;
+  onToggle: (panelId: string) => void;
   overview: EmployeeInsightsOverview;
 }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -265,7 +502,12 @@ function SalaryDistributionChart({
   }, [overview.currency, points]);
 
   return (
-    <article className="dashboard-panel overview-chart-panel">
+    <ExpandablePanelShell
+      expandedPanelId={expandedPanelId}
+      onToggle={onToggle}
+      panelId={panelId}
+      title="Salary distribution"
+    >
       <h2>Salary distribution</h2>
       <p className="overview-chart-copy">Spread from minimum to maximum salary with quartiles and median.</p>
       {points ? (
@@ -279,13 +521,16 @@ function SalaryDistributionChart({
       ) : (
         <p>Distribution data is unavailable for this snapshot.</p>
       )}
-    </article>
+    </ExpandablePanelShell>
   );
 }
 
 export function OverviewCharts({
   overview,
   countryInsights,
+  departmentInsights,
+  tenureBandInsights,
+  hiringTrend,
   initialCountry,
   initialCountryJobTitleInsights
 }: OverviewChartsProps) {
@@ -297,7 +542,12 @@ export function OverviewCharts({
   );
   const [jobTitleLoading, setJobTitleLoading] = useState(false);
   const [jobTitleFailed, setJobTitleFailed] = useState(false);
+  const [expandedPanelId, setExpandedPanelId] = useState<string | null>(null);
   const usedInitialResponseRef = useRef(false);
+
+  const togglePanelExpansion = (panelId: string) => {
+    setExpandedPanelId((currentPanelId) => (currentPanelId === panelId ? null : panelId));
+  };
 
   useEffect(() => {
     if (!selectedCountry) {
@@ -369,6 +619,51 @@ export function OverviewCharts({
       .filter((item): item is BarChartDatum => item !== null);
   }, [countryInsights]);
 
+  const countryHeadcountData = useMemo<BarChartDatum[]>(() => {
+    if (!countryInsights) {
+      return [];
+    }
+
+    return [...countryInsights.items]
+      .sort((left, right) => right.employee_count - left.employee_count || left.country.localeCompare(right.country))
+      .map((item) => ({
+        label: item.country,
+        value: item.employee_count
+      }));
+  }, [countryInsights]);
+
+  const departmentHeadcountData = useMemo<BarChartDatum[]>(() => {
+    if (!departmentInsights) {
+      return [];
+    }
+
+    return departmentInsights.items.map((item) => ({
+      label: item.department,
+      value: item.employee_count
+    }));
+  }, [departmentInsights]);
+
+  const departmentAverageSalaryData = useMemo<BarChartDatum[]>(() => {
+    if (!departmentInsights) {
+      return [];
+    }
+
+    return departmentInsights.items
+      .map((item) => {
+        const averageSalary = parseSalary(item.average_salary);
+
+        if (averageSalary === null) {
+          return null;
+        }
+
+        return {
+          label: item.department,
+          value: averageSalary
+        };
+      })
+      .filter((item): item is BarChartDatum => item !== null);
+  }, [departmentInsights]);
+
   const jobTitleAverageSalaryData = useMemo<BarChartDatum[]>(() => {
     if (!jobTitleInsights) {
       return [];
@@ -390,18 +685,112 @@ export function OverviewCharts({
       .filter((item): item is BarChartDatum => item !== null);
   }, [jobTitleInsights]);
 
+  const jobTitleSalaryRangeData = useMemo<BarChartDatum[]>(() => {
+    if (!jobTitleInsights) {
+      return [];
+    }
+
+    return jobTitleInsights.items
+      .map((item) => {
+        const salaryRange = parseSalary(item.salary_range);
+
+        if (salaryRange === null) {
+          return null;
+        }
+
+        return {
+          label: item.job_title,
+          value: salaryRange
+        };
+      })
+      .filter((item): item is BarChartDatum => item !== null);
+  }, [jobTitleInsights]);
+
+  const tenureBandHeadcountData = useMemo<BarChartDatum[]>(() => {
+    if (!tenureBandInsights) {
+      return [];
+    }
+
+    return tenureBandInsights.items.map((item) => ({
+      label: item.tenure_band,
+      value: item.employee_count
+    }));
+  }, [tenureBandInsights]);
+
+  const hiringTrendData = useMemo<TrendChartDatum[]>(() => {
+    if (!hiringTrend) {
+      return [];
+    }
+
+    return hiringTrend.items.map((item) => ({
+      label: formatMonthLabel(item.month),
+      value: item.hires_count
+    }));
+  }, [hiringTrend]);
+
+  const selectedCountryLabel = selectedCountry || "No country selected";
+  const jobTitleEmptyMessage = selectedCountry
+    ? "No job title insights available for the selected country."
+    : "Country insights are unavailable right now.";
+
   return (
     <section aria-label="Overview charts" className="overview-charts-grid">
-      <SalaryDistributionChart overview={overview} />
+      <SalaryDistributionChart
+        expandedPanelId={expandedPanelId}
+        onToggle={togglePanelExpansion}
+        overview={overview}
+        panelId="salary-distribution"
+      />
 
-      <CountryAverageSalaryChart
-        currency={overview.currency}
+      <HorizontalBarChartPanel
         data={countryAverageSalaryData}
+        formatValue={(value) => formatCurrencyNumber(value, overview.currency)}
         emptyMessage="Country insights are unavailable right now."
+        expandedPanelId={expandedPanelId}
+        onToggle={togglePanelExpansion}
+        panelId="country-average-salary"
         title="Average salary by country"
       />
 
-      <article className="dashboard-panel overview-chart-panel">
+      <HorizontalBarChartPanel
+        copy="Workforce distribution across current operating countries."
+        data={countryHeadcountData}
+        formatValue={formatCountNumber}
+        emptyMessage="Country headcount insights are unavailable right now."
+        expandedPanelId={expandedPanelId}
+        onToggle={togglePanelExpansion}
+        panelId="country-headcount"
+        title="Headcount by country"
+      />
+
+      <HorizontalBarChartPanel
+        copy="Compare current team size across departments, including any unassigned employees."
+        data={departmentHeadcountData}
+        formatValue={formatCountNumber}
+        emptyMessage="Department insights are unavailable right now."
+        expandedPanelId={expandedPanelId}
+        onToggle={togglePanelExpansion}
+        panelId="department-headcount"
+        title="Headcount by department"
+      />
+
+      <HorizontalBarChartPanel
+        copy="Average pay by department highlights where salary benchmarks diverge across the org."
+        data={departmentAverageSalaryData}
+        formatValue={(value) => formatCurrencyNumber(value, overview.currency)}
+        emptyMessage="Department pay insights are unavailable right now."
+        expandedPanelId={expandedPanelId}
+        onToggle={togglePanelExpansion}
+        panelId="department-average-salary"
+        title="Average salary by department"
+      />
+
+      <ExpandablePanelShell
+        expandedPanelId={expandedPanelId}
+        onToggle={togglePanelExpansion}
+        panelId="job-title-average-salary"
+        title="Average salary by job title"
+      >
         <div className="overview-chart-panel-header">
           <h2>Average salary by job title</h2>
           <label className="overview-filter" htmlFor="overview-country-filter">
@@ -419,19 +808,53 @@ export function OverviewCharts({
             </select>
           </label>
         </div>
+        <p className="overview-selected-country">Selected country: {selectedCountryLabel}</p>
+        <p className="overview-chart-copy">Drill into pay benchmarks for the roles represented in the selected country.</p>
 
         {jobTitleLoading ? <p>Loading job title insights...</p> : null}
         {jobTitleFailed ? <p>Job title insights are unavailable right now.</p> : null}
 
         {!jobTitleLoading && !jobTitleFailed ? (
-          <CountryAverageSalaryChart
-            currency={overview.currency}
+          <HorizontalBarChartContent
+            ariaLabel="Average salary by job title"
             data={jobTitleAverageSalaryData}
-            emptyMessage="No job title insights available for the selected country."
-            title="Job titles"
+            emptyMessage={jobTitleEmptyMessage}
+            formatValue={(value) => formatCurrencyNumber(value, overview.currency)}
           />
         ) : null}
-      </article>
+      </ExpandablePanelShell>
+
+      <HorizontalBarChartPanel
+        copy={`Selected country: ${selectedCountryLabel}. Compare salary spread between the highest and lowest paid employees in each role.`}
+        data={!jobTitleLoading && !jobTitleFailed ? jobTitleSalaryRangeData : []}
+        formatValue={(value) => formatCurrencyNumber(value, overview.currency)}
+        emptyMessage={jobTitleFailed ? "Job title salary spread insights are unavailable right now." : jobTitleEmptyMessage}
+        expandedPanelId={expandedPanelId}
+        onToggle={togglePanelExpansion}
+        panelId="job-title-salary-range"
+        title="Salary range by job title"
+      />
+
+      <HorizontalBarChartPanel
+        copy="Tenure mix helps spot whether the workforce is weighted toward recent hiring or longer-term retention."
+        data={tenureBandHeadcountData}
+        formatValue={formatCountNumber}
+        emptyMessage="Tenure insights are unavailable right now."
+        expandedPanelId={expandedPanelId}
+        onToggle={togglePanelExpansion}
+        panelId="tenure-mix"
+        title="Workforce tenure mix"
+      />
+
+      <TrendBarChartPanel
+        copy="Monthly hiring counts for the trailing year surface hiring bursts and recent slowdown risk."
+        data={hiringTrendData}
+        emptyMessage="Hiring trend insights are unavailable right now."
+        expandedPanelId={expandedPanelId}
+        onToggle={togglePanelExpansion}
+        panelId="hiring-trend"
+        title="Hiring trend"
+      />
     </section>
   );
 }

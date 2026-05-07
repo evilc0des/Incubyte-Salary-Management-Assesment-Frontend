@@ -2,6 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   DashboardApiError,
+  getHiringTrend,
+  listInsightsByDepartment,
+  listInsightsByTenureBand,
   listInsightsByCountry,
   listInsightsByCountryJobTitles,
   resolveApiBaseUrl
@@ -76,6 +79,65 @@ describe("insights API client", () => {
 
     expect(fetchSpy).toHaveBeenCalledWith(
       "/api/v1/insights/by-country/United%20States/job-titles?limit=10&offset=2",
+      { cache: "no-store" }
+    );
+  });
+
+  it("calls department insights with limit and offset", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          items: [],
+          total: 0,
+          limit: 8,
+          offset: 0
+        })
+      } as Response);
+
+    await listInsightsByDepartment(8, 1);
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "/api/v1/insights/by-department?limit=8&offset=1",
+      { cache: "no-store" }
+    );
+  });
+
+  it("calls tenure band insights without query params", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          items: [],
+          total: 4
+        })
+      } as Response);
+
+    await listInsightsByTenureBand();
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "/api/v1/insights/tenure-bands",
+      { cache: "no-store" }
+    );
+  });
+
+  it("calls hiring trend with a month window", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          items: [],
+          total: 12
+        })
+      } as Response);
+
+    await getHiringTrend(6);
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "/api/v1/insights/hiring-trend?months=6",
       { cache: "no-store" }
     );
   });

@@ -54,6 +54,110 @@ const insightsByCountry = {
   offset: 0
 };
 
+const insightsByDepartment = {
+  items: [
+    {
+      department: "Engineering",
+      employee_count: 10,
+      currency: "USD",
+      min_salary: "100000.00",
+      max_salary: "180000.00",
+      average_salary: "145000.00",
+      median_salary: "142000.00",
+      p25_salary: "128000.00",
+      p75_salary: "157000.00",
+      salary_range: "80000.00",
+      last_updated_at: "2026-05-07T08:30:00Z"
+    },
+    {
+      department: "Human Resources",
+      employee_count: 4,
+      currency: "USD",
+      min_salary: "82000.00",
+      max_salary: "126000.00",
+      average_salary: "104000.00",
+      median_salary: "103000.00",
+      p25_salary: "92000.00",
+      p75_salary: "114000.00",
+      salary_range: "44000.00",
+      last_updated_at: "2026-05-07T08:30:00Z"
+    }
+  ],
+  total: 2,
+  limit: 8,
+  offset: 0
+};
+
+const tenureBands = {
+  items: [
+    {
+      tenure_band: "<1 year",
+      employee_count: 5,
+      currency: "USD",
+      min_salary: "72000.00",
+      max_salary: "130000.00",
+      average_salary: "97000.00",
+      median_salary: "95000.00",
+      p25_salary: "84000.00",
+      p75_salary: "112000.00",
+      salary_range: "58000.00",
+      last_updated_at: "2026-05-07T08:30:00Z"
+    },
+    {
+      tenure_band: "1-2 years",
+      employee_count: 6,
+      currency: "USD",
+      min_salary: "76000.00",
+      max_salary: "142000.00",
+      average_salary: "108000.00",
+      median_salary: "107000.00",
+      p25_salary: "93000.00",
+      p75_salary: "122000.00",
+      salary_range: "66000.00",
+      last_updated_at: "2026-05-07T08:30:00Z"
+    },
+    {
+      tenure_band: "3-5 years",
+      employee_count: 7,
+      currency: "USD",
+      min_salary: "90000.00",
+      max_salary: "150000.00",
+      average_salary: "119000.00",
+      median_salary: "118000.00",
+      p25_salary: "104000.00",
+      p75_salary: "132000.00",
+      salary_range: "60000.00",
+      last_updated_at: "2026-05-07T08:30:00Z"
+    },
+    {
+      tenure_band: "5+ years",
+      employee_count: 6,
+      currency: "USD",
+      min_salary: "98000.00",
+      max_salary: "160000.00",
+      average_salary: "131000.00",
+      median_salary: "129000.00",
+      p25_salary: "118000.00",
+      p75_salary: "144000.00",
+      salary_range: "62000.00",
+      last_updated_at: "2026-05-07T08:30:00Z"
+    }
+  ],
+  total: 4
+};
+
+const hiringTrend = {
+  items: [
+    { month: "2025-12", hires_count: 1 },
+    { month: "2026-01", hires_count: 2 },
+    { month: "2026-02", hires_count: 1 },
+    { month: "2026-03", hires_count: 2 },
+    { month: "2026-04", hires_count: 4 },
+    { month: "2026-05", hires_count: 3 }
+  ],
+  total: 6
+};
+
 const jobTitlesByCountry = {
   "United States": {
     items: [
@@ -154,6 +258,21 @@ createServer((request, response) => {
 
   if (url.pathname === "/api/v1/insights/by-country") {
     sendJson(response, 200, insightsByCountry);
+    return;
+  }
+
+  if (url.pathname === "/api/v1/insights/by-department") {
+    sendJson(response, 200, insightsByDepartment);
+    return;
+  }
+
+  if (url.pathname === "/api/v1/insights/tenure-bands") {
+    sendJson(response, 200, tenureBands);
+    return;
+  }
+
+  if (url.pathname === "/api/v1/insights/hiring-trend") {
+    sendJson(response, 200, hiringTrend);
     return;
   }
 

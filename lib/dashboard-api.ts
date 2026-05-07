@@ -41,6 +41,17 @@ export type CountryInsightsListResponse = {
   offset: number;
 };
 
+export type DepartmentInsightsRow = EmployeeInsightsMetrics & {
+  department: string;
+};
+
+export type DepartmentInsightsListResponse = {
+  items: DepartmentInsightsRow[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
 export type JobTitleInsightsRow = EmployeeInsightsMetrics & {
   job_title: string;
 };
@@ -50,6 +61,25 @@ export type JobTitleInsightsListResponse = {
   total: number;
   limit: number;
   offset: number;
+};
+
+export type TenureBandInsightsRow = EmployeeInsightsMetrics & {
+  tenure_band: string;
+};
+
+export type TenureBandInsightsListResponse = {
+  items: TenureBandInsightsRow[];
+  total: number;
+};
+
+export type HiringTrendRow = {
+  month: string;
+  hires_count: number;
+};
+
+export type HiringTrendResponse = {
+  items: HiringTrendRow[];
+  total: number;
 };
 
 export type Employee = {
@@ -139,6 +169,17 @@ export function listInsightsByCountry(limit: number = 8, offset: number = 0) {
   );
 }
 
+export function listInsightsByDepartment(limit: number = 8, offset: number = 0) {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset)
+  });
+
+  return fetchDashboardData<DepartmentInsightsListResponse>(
+    `/insights/by-department?${params.toString()}`
+  );
+}
+
 export function listInsightsByCountryJobTitles(
   country: string,
   limit: number = 10,
@@ -151,6 +192,20 @@ export function listInsightsByCountryJobTitles(
 
   return fetchDashboardData<JobTitleInsightsListResponse>(
     `/insights/by-country/${encodeURIComponent(country)}/job-titles?${params.toString()}`
+  );
+}
+
+export function listInsightsByTenureBand() {
+  return fetchDashboardData<TenureBandInsightsListResponse>("/insights/tenure-bands");
+}
+
+export function getHiringTrend(months: number = 12) {
+  const params = new URLSearchParams({
+    months: String(months)
+  });
+
+  return fetchDashboardData<HiringTrendResponse>(
+    `/insights/hiring-trend?${params.toString()}`
   );
 }
 

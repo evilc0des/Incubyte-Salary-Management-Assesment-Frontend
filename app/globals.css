@@ -134,6 +134,7 @@ a {
   gap: 1.5rem;
   max-width: 1100px;
   margin: 0 auto;
+  container-type: inline-size;
 }
 
 .dashboard-section-header {
@@ -218,12 +219,83 @@ a {
 
 .overview-charts-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
   gap: 1rem;
+}
+
+@container (min-width: 860px) {
+  .overview-charts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .overview-chart-panel {
   display: grid;
   gap: 0.9rem;
+  cursor: pointer;
+  transform-origin: center top;
+  will-change: transform, box-shadow;
+  transition:
+    border-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 220ms ease;
+}
+
+.overview-chart-panel > * {
+  transition:
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease;
+}
+
+.overview-chart-panel:hover {
+  border-color: rgba(245, 158, 11, 0.32);
+}
+
+.overview-chart-panel:focus-visible {
+  outline: 2px solid rgba(245, 158, 11, 0.55);
+  outline-offset: 3px;
+}
+
+.overview-chart-panel-expanded {
+  grid-column: 1 / -1;
+  border-color: rgba(245, 158, 11, 0.38);
+  box-shadow: 0 38px 96px rgba(0, 0, 0, 0.42);
+  transform: translateY(-4px) scale(1.01);
+  animation: overview-panel-expand 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.overview-chart-panel-expanded > * {
+  transform: translateY(-1px);
+}
+
+@keyframes overview-panel-expand {
+  from {
+    opacity: 0.92;
+    transform: translateY(0) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overview-chart-panel,
+  .overview-chart-panel > * {
+    transition: none;
+  }
+
+  .overview-chart-panel-expanded {
+    animation: none;
+    transform: none;
+  }
+
+  .overview-chart-panel-expanded > * {
+    transform: none;
+  }
 }
 
 .overview-chart-panel h2 {
@@ -287,6 +359,10 @@ a {
 
 .overview-bar {
   fill: rgba(245, 158, 11, 0.7);
+}
+
+.overview-column {
+  fill: rgba(14, 165, 233, 0.72);
 }
 
 .overview-bar-label {

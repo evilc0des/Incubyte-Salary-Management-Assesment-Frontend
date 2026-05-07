@@ -7,11 +7,14 @@ test("dashboard navigation loads overview, employees, and employee details", asy
   await expect(page.getByText("$124,500.00")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Salary distribution" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Average salary by country" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Headcount by department" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Workforce tenure mix" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Hiring trend" })).toBeVisible();
   await expect(page.getByRole("combobox", { name: "Country" })).toBeVisible();
-  await expect(page.getByText("Selected country: United States")).toBeVisible();
+  await expect(page.getByText("Selected country: United States", { exact: true })).toBeVisible();
 
   await page.getByRole("combobox", { name: "Country" }).selectOption("United Kingdom");
-  await expect(page.getByText("Selected country: United Kingdom")).toBeVisible();
+  await expect(page.getByText("Selected country: United Kingdom", { exact: true })).toBeVisible();
 
   await page.getByRole("link", { name: "Employees" }).first().click();
   await expect(page.getByRole("heading", { name: "Employees" })).toBeVisible();

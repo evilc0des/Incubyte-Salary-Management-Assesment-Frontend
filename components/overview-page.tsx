@@ -1,7 +1,10 @@
 import type {
   CountryInsightsListResponse,
+  DepartmentInsightsListResponse,
   EmployeeInsightsOverview,
-  JobTitleInsightsListResponse
+  HiringTrendResponse,
+  JobTitleInsightsListResponse,
+  TenureBandInsightsListResponse
 } from "../lib/dashboard-api";
 import { formatCurrency, formatDateTime } from "../lib/formatters";
 import { OverviewCharts } from "./overview-charts";
@@ -31,6 +34,9 @@ const statDefinitions = [
 type OverviewPageProps = {
   overview: EmployeeInsightsOverview | null;
   countryInsights: CountryInsightsListResponse | null;
+  departmentInsights: DepartmentInsightsListResponse | null;
+  tenureBandInsights: TenureBandInsightsListResponse | null;
+  hiringTrend: HiringTrendResponse | null;
   initialCountry: string | null;
   initialCountryJobTitleInsights: JobTitleInsightsListResponse | null;
 };
@@ -38,6 +44,9 @@ type OverviewPageProps = {
 export function OverviewPage({
   overview,
   countryInsights,
+  departmentInsights,
+  tenureBandInsights,
+  hiringTrend,
   initialCountry,
   initialCountryJobTitleInsights
 }: OverviewPageProps) {
@@ -64,6 +73,9 @@ export function OverviewPage({
 
           <OverviewCharts
             countryInsights={countryInsights}
+            departmentInsights={departmentInsights}
+            tenureBandInsights={tenureBandInsights}
+            hiringTrend={hiringTrend}
             initialCountry={initialCountry}
             initialCountryJobTitleInsights={initialCountryJobTitleInsights}
             overview={overview}
