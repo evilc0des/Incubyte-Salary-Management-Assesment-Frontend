@@ -1,13 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  createEmployee,
   DashboardApiError,
   getHiringTrend,
   listInsightsByDepartment,
   listInsightsByTenureBand,
   listInsightsByCountry,
   listInsightsByCountryJobTitles,
-  resolveApiBaseUrl
+  resolveApiBaseUrl,
+  updateEmployee
 } from "../../lib/dashboard-api";
 
 describe("resolveApiBaseUrl", () => {
@@ -149,5 +151,115 @@ describe("insights API client", () => {
     } as Response);
 
     await expect(listInsightsByCountry()).rejects.toBeInstanceOf(DashboardApiError);
+  });
+
+  it("creates an employee with a POST request", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          id: "1f48fd9b-4b35-4d35-9c05-34a86e519c77",
+          first_name: "Ada",
+          last_name: "Lovelace",
+          full_name: "Ada Lovelace",
+          job_title: "Principal Engineer",
+          department: "Platform",
+          country: "United Kingdom",
+          salary: "145000.00",
+          currency: "USD",
+          hire_date: "2021-03-10",
+          created_at: "2026-05-07T08:30:00Z",
+          updated_at: "2026-05-07T08:30:00Z"
+        })
+      } as Response);
+
+    await createEmployee({
+      first_name: "Ada",
+      last_name: "Lovelace",
+      job_title: "Principal Engineer",
+      department: "Platform",
+      country: "United Kingdom",
+      salary: "145000.00",
+      hire_date: "2021-03-10"
+    });
+
+    expect(fetchSpy).toHaveBeenCalledWith("/api/v1/employees", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        first_name: "Ada",
+        last_name: "Lovelace",
+        job_title: "Principal Engineer",
+        department: "Platform",
+        country: "United Kingdom",
+        salary: "145000.00",
+        hire_date: "2021-03-10"
+      }),
+      cache: "no-store"
+    });
+  });
+
+  it("updates an employee with a PATCH request", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          id: "1f48fd9b-4b35-4d35-9c05-34a86e519c77",
+          first_name: "Ada",
+          last_name: "Lovelace",
+          full_name: "Ada Lovelace",
+          job_title: "Distinguished Engineer",
+          department: "Platform",
+          country: "United Kingdom",
+          salary: "152000.00",
+          currency: "USD",
+          hire_date: "2021-03-10",
+          created_at: "2026-05-07T08:30:00Z",
+          updated_at: "2026-05-08T08:30:00Z"
+        })
+      } as Response);
+
+    await updateEmployee("1f48fd9b-4b35-4d35-9c05-34a86e519c77", {
+      job_title: "Distinguished Engineer",
+      salary: "152000.00"
+    });
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "/api/v1/employees/1f48fd9b-4b35-4d35-9c05-34a86e519c77",
+      {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          job_title: "Distinguished Engineer",
+          salary: "152000.00"
+        }),
+        cache: "no-store"
+      }
+    );
+  });
+
+  it("throws DashboardApiError when a mutation response is not ok", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: false,
+      status: 422
+    } as Response);
+
+    await expect(
+      createEmployee({
+        first_name: "Ada",
+        last_name: "Lovelace",
+        job_title: "Principal Engineer",
+        department: "Platform",
+        country: "United Kingdom",
+        salary: "145000.00",
+        hire_date: "2021-03-10"
+      })
+    ).rejects.toEqual(expect.objectContaining({ status: 422 }));
   });
 });

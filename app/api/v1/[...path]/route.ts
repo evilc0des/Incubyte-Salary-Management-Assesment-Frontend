@@ -15,11 +15,30 @@ function buildUpstreamUrl(request: NextRequest, path: string[]) {
 }
 
 async function proxyGetRequest(request: NextRequest, path: string[]) {
+  return proxyRequest(request, path, "GET");
+}
+
+function buildProxyHeaders(request: NextRequest) {
+  const headers: Record<string, string> = {
+    accept: request.headers.get("accept") ?? "application/json"
+  };
+
+  const contentType = request.headers.get("content-type");
+
+  if (contentType) {
+    headers["content-type"] = contentType;
+  }
+
+  return headers;
+}
+
+async function proxyRequest(request: NextRequest, path: string[], method: "GET" | "POST" | "PATCH") {
   const upstreamUrl = buildUpstreamUrl(request, path);
+  const requestBody = method === "GET" ? undefined : await request.text();
   const upstreamResponse = await fetch(upstreamUrl, {
-    headers: {
-      accept: request.headers.get("accept") ?? "application/json",
-    },
+    method,
+    headers: buildProxyHeaders(request),
+    body: requestBody && requestBody.length > 0 ? requestBody : undefined,
     cache: "no-store",
   });
 
@@ -40,4 +59,20 @@ export async function GET(
 ) {
   const { path } = await context.params;
   return proxyGetRequest(request, path);
+}
+
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ path: string[] }> },
+) {
+  const { path } = await context.params;
+  return proxyRequest(request, path, "POST");
+}
+
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ path: string[] }> },
+) {
+  const { path } = await context.params;
+  return proxyRequest(request, path, "PATCH");
 }

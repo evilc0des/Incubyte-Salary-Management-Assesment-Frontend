@@ -104,6 +104,18 @@ export type EmployeeListResponse = {
   offset: number;
 };
 
+export type EmployeeWritePayload = {
+  first_name: string;
+  last_name: string;
+  job_title: string;
+  department: string | null;
+  country: string;
+  salary: string;
+  hire_date: string | null;
+};
+
+export type EmployeePatchPayload = Partial<EmployeeWritePayload>;
+
 export class DashboardApiError extends Error {
   status: number;
 
@@ -144,6 +156,30 @@ async function fetchDashboardData<T>(path: string): Promise<T> {
     `${resolveApiBaseUrl({ serverSide: typeof window === "undefined" })}${path}`,
     {
     cache: "no-store"
+    }
+  );
+
+  if (!response.ok) {
+    throw new DashboardApiError(`Dashboard request failed for ${path}`, response.status);
+  }
+
+  return (await response.json()) as T;
+}
+
+async function mutateDashboardData<T>(
+  path: string,
+  method: "POST" | "PATCH",
+  body: EmployeeWritePayload | EmployeePatchPayload
+): Promise<T> {
+  const response = await fetch(
+    `${resolveApiBaseUrl({ serverSide: typeof window === "undefined" })}${path}`,
+    {
+      method,
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify(body),
+      cache: "no-store"
     }
   );
 
@@ -224,4 +260,12 @@ export function listEmployees(search: string | undefined, limit: number, offset:
 
 export function getEmployee(employeeId: string) {
   return fetchDashboardData<Employee>(`/employees/${employeeId}`);
+}
+
+export function createEmployee(employee: EmployeeWritePayload) {
+  return mutateDashboardData<Employee>("/employees", "POST", employee);
+}
+
+export function updateEmployee(employeeId: string, employee: EmployeePatchPayload) {
+  return mutateDashboardData<Employee>(`/employees/${employeeId}`, "PATCH", employee);
 }
