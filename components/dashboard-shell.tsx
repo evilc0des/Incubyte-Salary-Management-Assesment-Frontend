@@ -13,9 +13,9 @@ type DashboardShellProps = {
 export function DashboardShell({ currentPath, children }: DashboardShellProps) {
   return (
     <div className="dashboard-shell">
-      <header aria-label="Salary dashboard" className="dashboard-sidebar">
+      <header aria-label="Salary dashboard" className="dashboard-sidebar h-[100vh]">
         <div className="dashboard-brand">
-          <span className="dashboard-kicker">Salary Management</span>
+          <h1 className="dashboard-kicker">Salary Management</h1>
           <strong>Dashboard</strong>
         </div>
 

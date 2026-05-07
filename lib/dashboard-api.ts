@@ -17,6 +17,41 @@ export type EmployeeInsightsOverview = {
   last_updated_at: string | null;
 };
 
+export type EmployeeInsightsMetrics = {
+  employee_count: number;
+  currency: string;
+  min_salary: string | null;
+  max_salary: string | null;
+  average_salary: string | null;
+  median_salary: string | null;
+  p25_salary: string | null;
+  p75_salary: string | null;
+  salary_range: string | null;
+  last_updated_at: string | null;
+};
+
+export type CountryInsightsRow = EmployeeInsightsMetrics & {
+  country: string;
+};
+
+export type CountryInsightsListResponse = {
+  items: CountryInsightsRow[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export type JobTitleInsightsRow = EmployeeInsightsMetrics & {
+  job_title: string;
+};
+
+export type JobTitleInsightsListResponse = {
+  items: JobTitleInsightsRow[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
 export type Employee = {
   id: string;
   first_name: string;
@@ -70,7 +105,8 @@ export function resolveApiBaseUrl({ serverSide, env }: ResolveApiBaseUrlOptions)
     );
   }
 
-  return resolvedEnv.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+  // Keep browser requests same-origin and let Next proxy /api/v1 to the backend.
+  return "/api/v1";
 }
 
 async function fetchDashboardData<T>(path: string): Promise<T> {
@@ -90,6 +126,32 @@ async function fetchDashboardData<T>(path: string): Promise<T> {
 
 export function getInsightsOverview() {
   return fetchDashboardData<EmployeeInsightsOverview>("/insights/overview");
+}
+
+export function listInsightsByCountry(limit: number = 8, offset: number = 0) {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset)
+  });
+
+  return fetchDashboardData<CountryInsightsListResponse>(
+    `/insights/by-country?${params.toString()}`
+  );
+}
+
+export function listInsightsByCountryJobTitles(
+  country: string,
+  limit: number = 10,
+  offset: number = 0
+) {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset)
+  });
+
+  return fetchDashboardData<JobTitleInsightsListResponse>(
+    `/insights/by-country/${encodeURIComponent(country)}/job-titles?${params.toString()}`
+  );
 }
 
 export function listEmployees(search: string | undefined, limit: number, offset: number) {

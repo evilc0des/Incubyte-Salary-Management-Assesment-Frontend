@@ -199,10 +199,124 @@ a {
   margin-bottom: 0.75rem;
 }
 
+.dashboard-panel h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.dashboard-panel h1 {
+  font-size: 1.75rem;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+}
+
 .dashboard-panel p {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.overview-charts-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.overview-chart-panel {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.overview-chart-panel h2 {
+  margin-bottom: 0;
+}
+
+.overview-chart-copy {
+  margin: 0;
+}
+
+.overview-selected-country {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.overview-chart-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.overview-filter {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.overview-filter select {
+  min-width: 12rem;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--panel-strong);
+  color: var(--foreground);
+}
+
+.overview-filter select:focus-visible {
+  outline: 2px solid rgba(245, 158, 11, 0.35);
+  outline-offset: 2px;
+}
+
+.overview-chart {
+  width: 100%;
+  min-height: 220px;
+}
+
+.overview-chart-axis text {
+  fill: var(--muted);
+  font-size: 0.76rem;
+}
+
+.overview-chart-axis path,
+.overview-chart-axis line {
+  stroke: rgba(157, 176, 198, 0.28);
+}
+
+.overview-bar {
+  fill: rgba(245, 158, 11, 0.7);
+}
+
+.overview-bar-label {
+  fill: var(--foreground);
+  font-size: 0.76rem;
+}
+
+.overview-distribution-line {
+  stroke: rgba(157, 176, 198, 0.78);
+  stroke-width: 2;
+}
+
+.overview-distribution-box {
+  fill: rgba(245, 158, 11, 0.24);
+  stroke: rgba(245, 158, 11, 0.65);
+  stroke-width: 1.5;
+}
+
+.overview-distribution-point {
+  fill: #86efac;
+}
+
+.overview-distribution-point-highlight {
+  fill: #f59e0b;
+}
+
+.overview-distribution-key,
+.overview-distribution-value {
+  fill: var(--foreground);
+  font-size: 0.72rem;
 }
 
 .dashboard-panel-empty {
@@ -289,6 +403,11 @@ a {
   }
 
   .dashboard-section-header {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .overview-chart-panel-header {
     flex-direction: column;
     align-items: start;
   }

@@ -1,5 +1,10 @@
-import type { EmployeeInsightsOverview } from "../lib/dashboard-api";
+import type {
+  CountryInsightsListResponse,
+  EmployeeInsightsOverview,
+  JobTitleInsightsListResponse
+} from "../lib/dashboard-api";
 import { formatCurrency, formatDateTime } from "../lib/formatters";
+import { OverviewCharts } from "./overview-charts";
 
 const statDefinitions = [
   {
@@ -25,9 +30,17 @@ const statDefinitions = [
 
 type OverviewPageProps = {
   overview: EmployeeInsightsOverview | null;
+  countryInsights: CountryInsightsListResponse | null;
+  initialCountry: string | null;
+  initialCountryJobTitleInsights: JobTitleInsightsListResponse | null;
 };
 
-export function OverviewPage({ overview }: OverviewPageProps) {
+export function OverviewPage({
+  overview,
+  countryInsights,
+  initialCountry,
+  initialCountryJobTitleInsights
+}: OverviewPageProps) {
   return (
     <section className="dashboard-section">
       <div className="dashboard-section-header">
@@ -35,7 +48,7 @@ export function OverviewPage({ overview }: OverviewPageProps) {
           <p className="dashboard-eyebrow">Overview</p>
           <h1>Overview</h1>
         </div>
-        <p className="dashboard-copy">Salary dashboard overview</p>
+        {overview ? <p className="dashboard-copy">Last updated {formatDateTime(overview.last_updated_at)}</p> : null}
       </div>
 
       {overview ? (
@@ -49,10 +62,12 @@ export function OverviewPage({ overview }: OverviewPageProps) {
             ))}
           </div>
 
-          <article className="dashboard-panel">
-            <h2>Data freshness</h2>
-            <p>Last updated {formatDateTime(overview.last_updated_at)}</p>
-          </article>
+          <OverviewCharts
+            countryInsights={countryInsights}
+            initialCountry={initialCountry}
+            initialCountryJobTitleInsights={initialCountryJobTitleInsights}
+            overview={overview}
+          />
         </>
       ) : (
         <article className="dashboard-panel dashboard-panel-empty">

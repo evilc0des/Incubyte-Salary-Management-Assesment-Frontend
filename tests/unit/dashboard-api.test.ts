@@ -1,6 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { resolveApiBaseUrl } from "../../lib/dashboard-api";
+import {
+  DashboardApiError,
+  listInsightsByCountry,
+  listInsightsByCountryJobTitles,
+  resolveApiBaseUrl
+} from "../../lib/dashboard-api";
 
 describe("resolveApiBaseUrl", () => {
   it("prefers the internal API URL for server-side requests", () => {
@@ -24,6 +29,63 @@ describe("resolveApiBaseUrl", () => {
           NEXT_PUBLIC_API_URL: "http://localhost:8000/api/v1"
         }
       })
-    ).toBe("http://localhost:8000/api/v1");
+    ).toBe("/api/v1");
+  });
+});
+
+describe("insights API client", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("calls by-country insights with limit and offset", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          items: [],
+          total: 0,
+          limit: 8,
+          offset: 0
+        })
+      } as Response);
+
+    await listInsightsByCountry(8, 4);
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "/api/v1/insights/by-country?limit=8&offset=4",
+      { cache: "no-store" }
+    );
+  });
+
+  it("encodes country for job-title insights", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          items: [],
+          total: 0,
+          limit: 10,
+          offset: 0
+        })
+      } as Response);
+
+    await listInsightsByCountryJobTitles("United States", 10, 2);
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "/api/v1/insights/by-country/United%20States/job-titles?limit=10&offset=2",
+      { cache: "no-store" }
+    );
+  });
+
+  it("throws DashboardApiError when insights response is not ok", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: false,
+      status: 503
+    } as Response);
+
+    await expect(listInsightsByCountry()).rejects.toBeInstanceOf(DashboardApiError);
   });
 });

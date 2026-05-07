@@ -18,7 +18,7 @@ export default defineConfig({
       timeout: 120000
     },
     {
-      command: "npx next dev --hostname 127.0.0.1 --port 3001",
+      command: "npx next dev --webpack --hostname 127.0.0.1 --port 3001",
       url: "http://127.0.0.1:3001",
       name: "Frontend",
       env: {
