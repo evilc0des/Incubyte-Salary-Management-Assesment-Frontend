@@ -135,7 +135,7 @@ export function EmployeeDetailPageContent({ employee, state }: EmployeeDetailPag
               key={field.label}
               className={`employee-detail-card${field.isFullWidth ? " employee-detail-card-full" : ""}`}
             >
-              <p className="dashboard-eyebrow">{field.label}</p>
+              <h2 className="dashboard-eyebrow">{field.label}</h2>
               <p className="employee-detail-value">{field.value}</p>
             </article>
           ))}

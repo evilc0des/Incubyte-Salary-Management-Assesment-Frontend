@@ -75,9 +75,10 @@ describe("Employees page", () => {
     render(await EmployeesPage({ searchParams: Promise.resolve({}) }));
 
     expect(screen.getByRole("heading", { name: "Employees" })).toBeInTheDocument();
-    expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
+    expect(screen.getByText("Ada")).toBeInTheDocument();
+    expect(screen.getByText("Lovelace")).toBeInTheDocument();
     expect(screen.getByText("Principal Engineer")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Ada Lovelace" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Ada" })).toHaveAttribute(
       "href",
       "/employees/1f48fd9b-4b35-4d35-9c05-34a86e519c77"
     );

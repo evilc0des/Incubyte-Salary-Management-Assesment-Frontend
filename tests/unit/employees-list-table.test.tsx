@@ -73,12 +73,15 @@ describe("Employees list table", () => {
     const table = screen.getByRole("table");
     expect(table).toBeInTheDocument();
 
-    expect(within(table).getByRole("columnheader", { name: /Name/ })).toBeInTheDocument();
+    expect(within(table).getByRole("columnheader", { name: /First Name/ })).toBeInTheDocument();
+    expect(within(table).getByRole("columnheader", { name: /Last Name/ })).toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: /Title/ })).toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: /Salary/ })).toBeInTheDocument();
 
-    expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
-    expect(screen.getByText("Grace Hopper")).toBeInTheDocument();
+    expect(screen.getByText("Ada")).toBeInTheDocument();
+    expect(screen.getByText("Lovelace")).toBeInTheDocument();
+    expect(screen.getByText("Grace")).toBeInTheDocument();
+    expect(screen.getByText("Hopper")).toBeInTheDocument();
     expect(screen.getByText("Principal Engineer")).toBeInTheDocument();
     expect(screen.getByText("Staff Engineer")).toBeInTheDocument();
   });

@@ -148,9 +148,10 @@ export function EmployeesTable({ response, isLoading = false }: EmployeesTablePr
             <tr>
               <th aria-sort={getSortState("name")}>
                 <button type="button" className="table-sort-button" onClick={() => handleSort("name")}>
-                  Name
+                  First Name
                 </button>
               </th>
+              <th>Last Name</th>
               <th aria-sort={getSortState("title")}>
                 <button type="button" className="table-sort-button" onClick={() => handleSort("title")}>
                   Title
@@ -170,8 +171,9 @@ export function EmployeesTable({ response, isLoading = false }: EmployeesTablePr
             {sortedItems.map((employee) => (
               <tr key={employee.id}>
                 <td>
-                  <Link href={`/employees/${employee.id}`}>{employee.full_name}</Link>
+                  <Link href={`/employees/${employee.id}`}>{employee.first_name}</Link>
                 </td>
+                <td>{employee.last_name}</td>
                 <td>{employee.job_title}</td>
                 <td>{employee.department ?? "Unassigned"}</td>
                 <td>{employee.country}</td>
